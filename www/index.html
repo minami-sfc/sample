@@ -1,0 +1,166 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <script src="components/loader.js"></script>
+    <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+/*
+        document.addEventListener('DOMContentLoaded', function() {
+            // 3秒後に「時間だよ」と表示する
+            var startButton = document.getElementById("button-start");
+            startButton.addEventListener('click', function() {
+                setTimeout(function(){
+                    alert("時間だよ");
+                }, 3 * 1 * 1000);
+            });
+        });
+ */
+/*
+        // ミリ秒のカウントダウン表示
+        var timerMilliSec = 3 * 1 * 1000 ; // 3秒
+        document.addEventListener('DOMContentLoaded', function () {
+            var startButton = document.getElementById('button-start');
+            var timerDigits = document.getElementById('timer-digits');
+            startButton.addEventListener('click', function () {
+                console.log("startButton: clicked");
+                var timerCountdown = timerMilliSec;
+                var timerInterval = setInterval(function () {
+                    timerCountdown = timerCountdown - 10;
+　　　　　          timerDigits.textContent = timerCountdown;
+　　　　　          if (timerCountdown <= 0) { // 数えきった
+　　　　　              alert("時間ですよ");
+　　　　　              clearInterval(timerInterval);
+                    }
+                },10);
+            });
+        });
+
+*/
+/*
+        // 分・秒・ミリ秒形式でのカウントダウン表示
+        var timerMilliSec = 3 * 1 * 1000 ; // 3秒
+        document.addEventListener('DOMContentLoaded', function () {
+            var startButton = document.getElementById('button-start');
+            var timerDigits = document.getElementById('timer-digits');
+            // function toTimerDigits(countdown) {
+            var toTimerDigits = function (countdown) {
+                var  min, sec, msec;
+                min = Math.floor(countdown / 60 / 1000);
+                sec = Math.floor((countdown - min * 60 * 1000) / 1000 ) + '';
+                msec = Math.floor(countdown - min * 60 * 1000  - sec * 1000 ) / 10 + '';
+                return (min + ":" + (sec.length > 1 ? "" : "0") 
+                        + sec + "." + (msec.length > 1 ? "" : "0") + msec);
+            };
+            timerDigits.textContent = toTimerDigits(timerMilliSec);
+            startButton.addEventListener('click', function () {
+                console.log("startButton: clicked");
+                var timerCountdown = timerMilliSec;
+                var timerInterval = setInterval(function () {
+                    timerCountdown = timerCountdown - 10;
+　　　　　          timerDigits.textContent = toTimerDigits(timerCountdown);
+　　　　　          if (timerCountdown <= 0) { // 数えきった
+　　　　　              alert("時間ですよ");
+　　　　　              clearInterval(timerInterval);
+                    }
+                },10);
+            });
+        });
+
+*/
+
+// スタート・ストップ、リセットボタンのイベントリスナーを設定（ほぼ完成）
+/**/
+       document.addEventListener('DOMContentLoaded', function () {            
+            var timerMilliSec = 3 * 60 * 1000 ; // 3秒
+            var startButton, resetButton;
+            var timerCountdown, timerInterval, timerDigits;
+
+            var toTimerDigits = function (countdown) {
+                var min, sec, msec;
+                min = Math.floor(countdown / 60 / 1000);
+                sec = Math.floor((countdown - min * 60 * 1000) / 1000 ) + '';
+                msec = Math.floor(countdown - min * 60 * 1000  - sec * 1000 ) / 10 + '';
+                return (min + ":" + (sec.length > 1 ? "" : "0") + sec + "." + (msec.length > 1 ? "" : "0") + msec);
+            };
+
+            const TIMER_START = 0;
+            const TIMER_STOP  = 1;
+            var toggleStartStopButton = function (mode) {
+                if (mode == TIMER_START) {
+                    // BUG: jQuery UIで button のテキストを変更するためここだけ jQuery を使う
+                    $('#button-start').siblings('.ui-btn-inner').children('.ui-btn-text').text("スタート");
+                    startButton.removeEventListener('click', stopEventHandler, false);
+                    startButton.addEventListener('click', startEventHandler);
+                } else if (mode == TIMER_STOP) {
+                    // BUG: jQuery UIで button のテキストを変更するためここだけ jQuery を使う
+                    $('#button-start').siblings('.ui-btn-inner').children('.ui-btn-text').text("ストップ");
+                    startButton.removeEventListener('click', startEventHandler, false);
+                    startButton.addEventListener('click', stopEventHandler);
+                }
+            };
+
+            var startEventHandler = function () {
+                timerInterval = setInterval(function() {
+                    timerCountdown = timerCountdown - 10;
+                    timerDigits.textContent = toTimerDigits(timerCountdown);
+                    if (timerCountdown <= 0) {
+                        clearInterval(timerInterval);
+                        alert("時間ですよ");
+                        toggleStartStopButton(TIMER_START);
+                    }
+                }, 10);
+                toggleStartStopButton(TIMER_STOP);
+            };
+            
+            var stopEventHandler = function () {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    toggleStartStopButton(TIMER_START);
+                }
+            };
+            
+            var resetEventHandler = function () {
+                stopEventHandler();
+                timerCountdown = timerMilliSec;
+                timerDigits.textContent = toTimerDigits(timerCountdown);
+            };
+            // HTMLで構成した画面のうち機能的にひも付けの必要な要素を変数化
+            startButton = document.getElementById("button-start");
+            resetButton = document.getElementById("button-reset");
+            timerDigits = document.getElementById("timer-digits");
+            // 10ミリ秒毎にカウントダウンする数字の表示（最初は timerMilliSecの値）
+            timerCountdown = timerMilliSec;
+            timerDigits.textContent = toTimerDigits(timerCountdown);
+            // イベントリスナーを登録
+            startButton.addEventListener('click', startEventHandler);
+            resetButton.addEventListener('click', resetEventHandler);
+        });
+    /**/
+    </script>
+</head>
+<body>
+    <div data-role="page">
+        <div data-role="header" data-position="fixed">
+            <h1>ラーメンタイマー</h1>
+        </div>
+        <div data-role="content">
+            <div data-theme="a" data-form="ui-body-a" class="ui-body ui-body-a ui-corner-all">
+                <p id="timer-digits">0:00.00</p>
+            </div>
+            <ul data-role="ui-grid-a">
+                <div class="ui-block-a">
+                    <button class="ui-btn ui-corner-all" id="button-start">スタート</button>
+                </div>
+                <div class="ui-block-b">
+                    <button class="ui-btn ui-corner-all" id="button-reset">リセット</button>
+                </div>
+            </ul>
+            <div class="loader">Loading...</div>
+        </div>
+    </div>
+</body>
+</html>
