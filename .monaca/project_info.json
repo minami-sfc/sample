@@ -10,14 +10,14 @@
         "cordova-plugin-whitelist@1.0.0",
         "cordova-plugin-splashscreen@2.1.0"
     ],
-    "title-ja": "ラーメンタイマー（サンプル）",
-    "title-en": "",
-    "description-ja": "MonacaとjQuery Mobile UIを使ったラーメンタイマーのサンプルプロジェクト。",
-    "description-en": "",
+    "title-ja": "",
+    "title-en": "ラーメンタイマー（全部入り）",
+    "description-ja": "",
+    "description-en": "教材のサンプルプログラム",
     "category": "User Template",
     "platform": [
         "android",
         "ios"
     ],
-    "name": "generated-1465591232-57560ceb7e2193171a71621d"
+    "name": "generated-1466018355-57560ceb7e2193171a71621d"
 }

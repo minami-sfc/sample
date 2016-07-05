@@ -10,18 +10,18 @@
     <script>
 /*
         document.addEventListener('DOMContentLoaded', function() {
-            // 3秒後に「時間だよ」と表示する
+            // 3分後に「時間だよ」と表示する
             var startButton = document.getElementById("button-start");
             startButton.addEventListener('click', function() {
                 setTimeout(function(){
                     alert("時間だよ");
-                }, 3 * 1 * 1000);
+                }, 3 * 60 * 1000);
             });
         });
  */
 /*
         // ミリ秒のカウントダウン表示
-        var timerMilliSec = 3 * 1 * 1000 ; // 3秒
+        var timerMilliSec = 3 * 60 * 1000 ; // 3分
         document.addEventListener('DOMContentLoaded', function () {
             var startButton = document.getElementById('button-start');
             var timerDigits = document.getElementById('timer-digits');
@@ -75,9 +75,11 @@
 // スタート・ストップ、リセットボタンのイベントリスナーを設定（ほぼ完成）
 /**/
        document.addEventListener('DOMContentLoaded', function () {            
-            var timerMilliSec = 3 * 60 * 1000 ; // 3秒
+            var timerMilliSec = 3 * 60 * 1000 ; // 3分
             var startButton, resetButton;
             var timerCountdown, timerInterval, timerDigits;
+            // ゲージ描画用の部品
+            var timerCanvas, timerCtx;
 
             var toTimerDigits = function (countdown) {
                 var min, sec, msec;
@@ -107,10 +109,15 @@
                 timerInterval = setInterval(function() {
                     timerCountdown = timerCountdown - 10;
                     timerDigits.textContent = toTimerDigits(timerCountdown);
+                    timerCtx.fillRect(0, 20, 290 - 290 * (timerCountdown / timerMilliSec), 40);
+
                     if (timerCountdown <= 0) {
+                        timerCountdown = 0;
                         clearInterval(timerInterval);
-                        alert("時間ですよ");
-                        toggleStartStopButton(TIMER_START);
+                        navigator.vibrate([800,200,800,200,800,200,800,200]);
+                        alert("時間になりました。タイマーをリセットします。");
+                        // toggleStartStopButton(TIMER_START);
+                        resetEventHandler();
                     }
                 }, 10);
                 toggleStartStopButton(TIMER_STOP);
@@ -119,22 +126,32 @@
             var stopEventHandler = function () {
                 if (timerInterval) {
                     clearInterval(timerInterval);
-                    toggleStartStopButton(TIMER_START);
                 }
+                toggleStartStopButton(TIMER_START);
             };
             
             var resetEventHandler = function () {
                 stopEventHandler();
                 timerCountdown = timerMilliSec;
                 timerDigits.textContent = toTimerDigits(timerCountdown);
+                timerCanvas.width = timerCanvas.width;
             };
             // HTMLで構成した画面のうち機能的にひも付けの必要な要素を変数化
             startButton = document.getElementById("button-start");
             resetButton = document.getElementById("button-reset");
             timerDigits = document.getElementById("timer-digits");
+            // ゲージの描画のためのcanvas    
+            timerCanvas = document.getElementById("timer-canvas");
+            
             // 10ミリ秒毎にカウントダウンする数字の表示（最初は timerMilliSecの値）
             timerCountdown = timerMilliSec;
             timerDigits.textContent = toTimerDigits(timerCountdown);
+
+            // ゲージの描画：色を赤に指定。
+            timerCtx = timerCanvas.getContext('2d');
+            timerCtx.fillStyle = 'red';
+            timerCtx.beginPath();
+            
             // イベントリスナーを登録
             startButton.addEventListener('click', startEventHandler);
             resetButton.addEventListener('click', resetEventHandler);
@@ -151,6 +168,9 @@
             <div data-theme="a" data-form="ui-body-a" class="ui-body ui-body-a ui-corner-all">
                 <p id="timer-digits">0:00.00</p>
             </div>
+            <div id="timer-gauge" data-theme="a">
+                <canvas id="timer-canvas" width="290px" height="60px"></canvas>
+            </div>
             <ul data-role="ui-grid-a">
                 <div class="ui-block-a">
                     <button class="ui-btn ui-corner-all" id="button-start">スタート</button>
@@ -159,7 +179,7 @@
                     <button class="ui-btn ui-corner-all" id="button-reset">リセット</button>
                 </div>
             </ul>
-            <div class="loader">Loading...</div>
+            
         </div>
     </div>
 </body>
